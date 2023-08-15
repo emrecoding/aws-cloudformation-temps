@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "This template creates an RDS instance on one of the private subnets"
+
+Parameters:
+  DBInstanceIdentifier:
+    Description: My database instance
+    Type: String
+    MinLength: '3'
+    MaxLength: '100'
+
+Resources:
+  MyDBSubnetGroup:
+    Type: 'AWS::RDS::DBSubnetGroup'
+    Properties:
+      DBSubnetGroupDescription: 'Private subnets for RDS instance'
+      SubnetIds:
+        - !ImportValue PrivateSubnet1
+        - !ImportValue PrivateSubnet2
+
+
+  DBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: !Ref DBInstanceIdentifier
+      DBSubnetGroupName: !Ref MyDBSubnetGroup
+   
+      DBName: OMITTED
+      Engine: mariadb
+      EngineVersion: "10.6.10"
+      DBInstanceClass: db.t2.micro
+      AllocatedStorage: 20
+      MasterUsername: OMITTED
+      MasterUserPassword: OMITTED
+      MultiAZ: false
+      PubliclyAccessible: false
+      StorageType: gp2
+      Tags:
+        - Key: Name
+          Value: RDSInstance
+
+
+###Has been decommissioned and deleted from AWS CloudFormation service###

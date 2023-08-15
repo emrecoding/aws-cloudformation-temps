@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Creates an EC2 with bootstrap/user data in order to initialize EC2 with configurations required for WordPress project to work"
+Resources:
+  EC2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: ami-0062dbf6b829f04e1
+      InstanceType: t2.micro
+      KeyName: OMITTED
+      SubnetId: !ImportValue PublicSubnet1
+      
+      UserData: ################# USER DATA SHOULD BE SEPARATE FROM IAC(INFRASTRUCTURE AS CODE)
+      ########## In order to modify the userdata in the EC2 instance, the instance must be stopped.#########
+        Fn::Base64: |
+          #!/bin/bash
+          sudo dnf install wget php-mysqlnd httpd php-fpm php-mysqli mariadb105-server php-json php php-devel -y
+          sudo wget https://wordpress.org/latest.tar.gz
+          sudo tar -xzf latest.tar.gz
+          sudo cp -r wordpress/* /var/www/html/
+          sudo chown -R apache /var/www/html
+          sudo chgrp -R apache /var/www/html
+          sudo systemctl restart httpd
+          sudo systemctl status httpd
+          
+        
+Outputs:
+  InstanceId:
+    Value: !Ref EC2Instance
+    Export:
+      Name: EC2InstanceId
+
+###Has been decommissioned and deleted from AWS CloudFormation service###

@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "This template creates an elastic load balancer and generates a certificate to provision an extra layer of encryption"
+Resources:
+  LBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: New security group for ELB
+      VpcId: !ImportValue MyVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: loadbalancersg
+
+  MyTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: MyTargetGroup
+      Port: 80
+      Protocol: HTTP
+      VpcId: !ImportValue MyVPC
+      TargetType: instance
+      Targets:
+        - Id: !ImportValue EC2Instance
+
+  MyLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: myloadbalancer
+      IpAddressType: ipv4  
+      Scheme: internet-facing
+      Type: application
+      Subnets:
+        - !ImportValue PublicSubnet1
+        - !ImportValue PublicSubnet2
+      SecurityGroups:
+        - !Ref LBalancerSecurityGroup
+  
+  MyCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: autos.systems
+      ValidationMethod: DNS
+      DomainValidationOptions:
+           - DomainName: autos.systems
+             HostedZoneId: Z004542913LW27A0GQSON
+
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref MyLoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: redirect
+          RedirectConfig:
+            Protocol: HTTPS
+            Port: 443
+            StatusCode: HTTP_301
+
+  HTTPSListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref MyLoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: !Ref MyCertificate
+      DefaultActions:
+           - Type: forward
+             TargetGroupArn: !Ref MyTargetGroup
+
+##This code configures the load balancer, security group, target group, SSL/TLS certificate, 
+##and listeners necessary to enable HTTP to HTTPS redirection and secure communication for my WordPress project.
+
+
+###Has been decommissioned and deleted from AWS CloudFormation service###

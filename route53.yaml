@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Setting up Route53"
+
+Resources:
+  DNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: Z004542913LW27A0GQSON
+      Name: autos.systems
+      Type: A
+      AliasTarget:
+        DNSName: myloadbalancer-46889159.us-west-1.elb.amazonaws.com
+        EvaluateTargetHealth: false
+        HostedZoneId: Z368ELLRRE2KJ0
+
+###Has been decommissioned and deleted from AWS CloudFormation service###

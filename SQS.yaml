@@ -1,0 +1,13 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  Type: "AWS::SQS::Queue"
+  Properties:
+    QueueName: "test-sqs-cfn"
+    VisibilityTimeout: 30
+    MessageRetentionPeriod: 7200
+    DelaySeconds: 0
+    ReceiveMessageWaitTimeSeconds: 0
+    SqsManagedSseEnabled: "False"
+      Tags:
+        - Key: "env"
+          Value: "test"

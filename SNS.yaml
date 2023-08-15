@@ -1,0 +1,9 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  SNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: test-sns-cfn
+      Subscription:
+        - Protocol: email
+          Endpoint: OMITTED@outlook.com
